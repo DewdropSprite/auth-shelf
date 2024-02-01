@@ -15,6 +15,12 @@ function ShelfPage() {
     setDescription('');
     setUrl('');
   };
+  const deleteItem = (event) => {
+    console.log("Delete has been clicked", event.target);
+    console.log("Delete has been clicked", event.target.closest("div").id);
+    const id = event.target.closest("div").id
+    dispatch({type: "DELETE_ITEM", payload: {id}})
+  }
 
   useEffect(() => {
     dispatch({
@@ -48,7 +54,13 @@ function ShelfPage() {
 
       <ul>
         {shelf?.map((shelves) => {
-          return <li key={shelves.id}>{shelves.description}</li>;
+          return (
+            <div id={shelves.id} key={shelves.id}>
+          <li>{shelves.description}</li>
+          <button onClick={event => deleteItem(event)}>Delete</button>
+          </div>
+          )
+          
         })}
       </ul>
     </div>
