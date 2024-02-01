@@ -6,14 +6,60 @@ const router = express.Router();
  * Get all of the items on the shelf
  */
 router.get('/', (req, res) => {
-  res.sendStatus(200); // For testing only, can be removed
+  console.log('/shelf GET route');
+  console.log('is authenticated?', req.isAuthenticated());
+  console.log('user', req.user);
+
+  // Checking if the user is logged in, and is a valid user.
+      // Will also check their access level.
+  if (req.isAuthenticated()) {
+      // ! Scope this query to only return the appropriate pets for the specific user.
+      
+      let queryText = `
+              SELECT * FROM "item";
+          `;
+      // ! User data from user object to customize query
+      // let queryParams = [req.user.id]
+      pool.query(queryText).then((result) => {
+          res.send(result.rows);
+      }).catch((error) => {
+          console.log(error);
+          res.sendStatus(500);
+      });
+  } else {
+      res.sendStatus(403)
+  }
+
 });
+
 
 /**
  * Add an item for the logged in user to the shelf
  */
 router.post('/', (req, res) => {
   // endpoint functionality
+  console.log('/shelf POST route', req.body)
+  console.log('is authenticate?', req.isAuthenticated())
+  console.log('user', req.user);
+  if (req.isAuthenticated()) {
+    // ! Scope this query to only return the appropriate pets for the specific user.
+    
+    let queryText = `
+            INSERT INTO "item" ("description", "image_url", "user_id")
+            VALUES ($1, $2, $3);
+        `;
+    let queryParams = [req.body.description, req.body.image_url, req.user.id]
+    // ! User data from user object to customize query
+    // let queryParams = [req.user.id]
+    pool.query(queryText, queryParams).then((result) => {
+        res.sendStatus(201);
+    }).catch((error) => {
+        console.log(error);
+        res.sendStatus(500);
+    });
+} else {
+    res.sendStatus(403)
+}
 });
 
 /**
